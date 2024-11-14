@@ -1,6 +1,7 @@
 package org.yaabelozerov.kmp_components
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -19,6 +20,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 enum class Nav(val route: String, val selectedIcon: ImageVector, val unselectedIcon: ImageVector) {
@@ -30,6 +33,7 @@ enum class Nav(val route: String, val selectedIcon: ImageVector, val unselectedI
 fun App() {
   val navCtrl = rememberNavController()
   val currentRoute = navCtrl.currentBackStackEntryAsState().value?.destination?.route
+  val coroutineScope = rememberCoroutineScope()
 
   AppTheme(isSystemInDarkTheme()) {
     NavigationSuiteScaffold(
@@ -54,12 +58,14 @@ fun App() {
                   composable(Nav.MAIN.route) {
                     Column(
                         Modifier.fillMaxSize().padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
                         horizontalAlignment = Alignment.CenterHorizontally) {
                           PhoneField(
                               onContinue = { phone ->
                                 println(phone)
                                 true
                               })
+                          var isLoading by remember { mutableStateOf(false) }
                           ValidatedForm(
                               validators =
                                   listOf(
@@ -79,7 +85,14 @@ fun App() {
                                             ValidationResult.Invalid("Too long")
                                         else ValidationResult.Valid
                                       }),
-                              onSubmit = { println(it.toString()) })
+                              onSubmit = {
+                                coroutineScope.launch {
+                                  isLoading = true
+                                  delay(1000)
+                                  isLoading = false
+                                }
+                              },
+                              isLoading = isLoading)
                         }
                   }
                 }

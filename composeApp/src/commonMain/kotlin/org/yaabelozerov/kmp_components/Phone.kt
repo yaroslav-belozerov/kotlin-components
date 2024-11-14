@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalDensity
@@ -33,6 +34,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -50,9 +52,9 @@ fun PhoneField(
 ) {
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
-    var phone by rememberSaveable { mutableStateOf("") }
-    var hasError by rememberSaveable { mutableStateOf(isErr) }
-    OutlinedTextField(value = phone,
+    var phone by remember { mutableStateOf("") }
+    var hasError by remember { mutableStateOf(isErr) }
+    CustomTextField(value = phone,
         onValueChange = { it ->
             hasError = false
             phone = formatClipboardNumber(it.take(mask.count { it == maskNumber }))
@@ -62,7 +64,7 @@ fun PhoneField(
         ),
         keyboardActions = KeyboardActions(onNext = {
             hasError = if (mask.filter { it.isDigit() }.length == phone.length) {
-                focusManager.clearFocus()
+                focusManager.moveFocus(FocusDirection.Down)
                 !onContinue(prefix + phone)
             } else {
                 true
@@ -97,19 +99,8 @@ fun PhoneField(
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
             )
         },
-        textStyle = LocalTextStyle.current.copy(fontSize = 24.sp),
-        singleLine = true,
         isError = hasError,
-        supportingText = {
-            val density = LocalDensity.current
-            AnimatedVisibility(visible = hasError,
-                enter = slideInVertically {
-                    with(density) { -10.dp.roundToPx() }
-                } + fadeIn(),
-                exit = slideOutVertically { with(density) { -10.dp.roundToPx() } } + fadeOut()) {
-                Text(text = "Enter a valid phone number", fontSize = 16.sp)
-            }
-        })
+        errorText = "Enter a valid phone number")
 }
 
 class PhoneVisualTransformation(val mask: String, val maskNumber: Char) : VisualTransformation {

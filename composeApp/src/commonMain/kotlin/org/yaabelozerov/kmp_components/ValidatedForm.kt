@@ -1,16 +1,21 @@
 package org.yaabelozerov.kmp_components
 
-import kotlinx.collections.immutable.*
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.input.ImeAction
 import kotlinx.collections.immutable.toImmutableMap
 
 enum class ValidatorKey {
@@ -32,54 +37,56 @@ sealed class ValidationResult {
 }
 
 @Composable
-fun ValidatedField(
-    value: TextFieldValue,
-    onValidate: (TextFieldValue) -> ValidationResult
-) {
+fun ValidatedField(value: String, onValidate: (String) -> ValidationResult, onIme: () -> Unit) {
   var result by remember { mutableStateOf<ValidationResult>(ValidationResult.Initial) }
-  println("result: $result")
-  OutlinedTextField(
+  CustomTextField(
+      modifier = Modifier.fillMaxWidth(),
       value = value,
-      onValueChange = {
-        result = onValidate(it)
-      },
-      supportingText = {
-        when (result) {
-          is ValidationResult.Valid -> {}
-          is ValidationResult.Invalid -> {
-            Text(text = (result as ValidationResult.Invalid).message)
-          }
-          is ValidationResult.Initial -> {}
-        }
-      },
-      singleLine = true,
-      isError = result is ValidationResult.Invalid)
+      onValueChange = { result = onValidate(it) },
+      errorText =
+          when (result) {
+            is ValidationResult.Valid -> ""
+            is ValidationResult.Invalid -> (result as ValidationResult.Invalid).message
+            is ValidationResult.Initial -> ""
+          },
+      isError = result is ValidationResult.Invalid,
+      keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
+      keyboardActions = KeyboardActions(onNext = { onIme() }))
 }
 
 @Composable
 fun ColumnScope.ValidatedForm(
     validators: List<Validator<String>>,
-    onSubmit: (Map<ValidatorKey, String>) -> Unit
+    onSubmit: (Map<ValidatorKey, String>) -> Unit,
+    isLoading: Boolean
 ) {
+  val focusManager = LocalFocusManager.current
   var state by remember {
     mutableStateOf(
         validators
-            .associateWith {
-              Pair<TextFieldValue, ValidationResult>(TextFieldValue(), ValidationResult.Initial)
-            }.toImmutableMap())
+            .associateWith { Pair<String, ValidationResult>("", ValidationResult.Initial) }
+            .toImmutableMap())
   }
-  state.entries.forEach { entry ->
+  state.entries.forEachIndexed { index, entry ->
     ValidatedField(
-        entry.value.first
-    ) {
-      val res = entry.key.validator(it.text)
-      state = state.plus(entry.key to entry.value.copy(first = it, second = res)).toImmutableMap()
-      res
-    }
+        entry.value.first,
+        onValidate = {
+          val res = entry.key.validator(it)
+          state =
+              state.plus(entry.key to entry.value.copy(first = it, second = res)).toImmutableMap()
+          res
+        },
+        onIme = {
+          if (index != state.size - 1) focusManager.moveFocus(FocusDirection.Down)
+          else onSubmit(state.map { it.key.key to it.value.first }.toMap())
+        })
   }
-  Button(onClick = {
-    onSubmit(state.map { it.key.key to it.value.first.text }.toMap())
-  }, enabled = state.all { it.value.second is ValidationResult.Valid }) {
-    Text("Submit")
-  }
+  val enabled = state.all { it.value.second is ValidationResult.Valid }
+  if (!isLoading)
+      Button(
+          onClick = { if (enabled) onSubmit(state.map { it.key.key to it.value.first }.toMap()) },
+          enabled = enabled) {
+            Text("Submit")
+          }
+  else CircularProgressIndicator()
 }
