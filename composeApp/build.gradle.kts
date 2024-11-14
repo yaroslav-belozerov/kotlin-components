@@ -74,6 +74,7 @@ kotlin {
             implementation(libs.adaptive)
             implementation(libs.adaptive.layout)
             implementation(libs.adaptive.navigation)
+            implementation(libs.kotlinx.collections.immutable)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
