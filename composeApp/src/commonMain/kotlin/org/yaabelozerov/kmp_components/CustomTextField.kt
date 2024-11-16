@@ -7,6 +7,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.LocalTextStyle
@@ -52,7 +53,7 @@ fun CustomTextField(
                     with(density) { -10.dp.roundToPx() }
                 } + fadeIn() + expandVertically(),
                 exit = slideOutVertically { with(density) { -10.dp.roundToPx() } } + fadeOut() + shrinkVertically(), content = {
-                    Text(text = errorText, fontSize = 16.sp)
+                    Text(modifier = Modifier.padding(top = 8.dp, bottom = 16.dp), text = errorText, fontSize = 16.sp)
                 })
         },
         textStyle = LocalTextStyle.current.copy(fontSize = 24.sp),

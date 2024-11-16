@@ -1,14 +1,27 @@
 package org.yaabelozerov.kmp_components
 
+import androidx.compose.foundation.gestures.snapping.SnapPosition
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.*
@@ -58,13 +71,44 @@ fun App() {
                   composable(Nav.MAIN.route) {
                     Column(
                         Modifier.fillMaxSize().padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
                         horizontalAlignment = Alignment.CenterHorizontally) {
-                          PhoneField(
-                              onContinue = { phone ->
-                                println(phone)
-                                true
-                              })
+                          Column(
+                              verticalArrangement = Arrangement.spacedBy(16.dp),
+                              modifier = Modifier.fillMaxWidth()) {
+                                Box(
+                                    modifier =
+                                        Modifier.fillMaxWidth()
+                                            .height(64.dp)
+                                            .shimmerBackground(CardDefaults.shape))
+                                val listState = rememberLazyListState()
+                                LazyRow(
+                                    state = listState,
+                                    flingBehavior =
+                                        rememberSnapFlingBehavior(listState, SnapPosition.Start),
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                    modifier = Modifier.horizontalFadingEdge(listState, 32.dp)) {
+                                      items(10) {
+                                        OutlinedCard(
+                                            modifier = Modifier.height(64.dp).width(96.dp)) {}
+                                      }
+                                    }
+                                val scrollState = rememberScrollState()
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                    modifier =
+                                        Modifier
+                                            .horizontalFadingEdge(scrollState, 32.dp).horizontalScroll(scrollState)) {
+                                      for (i in 0..10) {
+                                        OutlinedCard(
+                                            modifier = Modifier.height(64.dp).width(96.dp)) {}
+                                      }
+                                    }
+                                PhoneField(
+                                    onContinue = { phone ->
+                                      println(phone)
+                                      true
+                                    })
+                              }
                           var isLoading by remember { mutableStateOf(false) }
                           ValidatedForm(
                               validators =
