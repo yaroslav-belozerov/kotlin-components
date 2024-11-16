@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.sp
 fun CustomTextField(
     value: String,
     onValueChange: (String) -> Unit,
+    enabled: Boolean = true,
     isError: Boolean = false,
     errorText: String = "",
     leadingIcon: (@Composable () -> Unit)? = null,
@@ -39,6 +40,7 @@ fun CustomTextField(
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
+        enabled = enabled,
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
         visualTransformation = visualTransformation,

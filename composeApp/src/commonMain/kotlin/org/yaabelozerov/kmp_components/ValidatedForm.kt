@@ -37,9 +37,15 @@ sealed class ValidationResult {
 }
 
 @Composable
-fun ValidatedField(value: String, onValidate: (String) -> ValidationResult, onIme: () -> Unit) {
+fun ValidatedField(
+    value: String,
+    enabled: Boolean,
+    onValidate: (String) -> ValidationResult,
+    onIme: () -> Unit
+) {
   var result by remember { mutableStateOf<ValidationResult>(ValidationResult.Initial) }
   CustomTextField(
+      enabled = enabled,
       modifier = Modifier.fillMaxWidth(),
       value = value,
       onValueChange = { result = onValidate(it) },
@@ -78,13 +84,22 @@ fun ColumnScope.ValidatedForm(
         },
         onIme = {
           if (index != state.size - 1) focusManager.moveFocus(FocusDirection.Down)
-          else onSubmit(state.map { it.key.key to it.value.first }.toMap())
-        })
+          else {
+            onSubmit(state.map { it.key.key to it.value.first }.toMap())
+            focusManager.clearFocus()
+          }
+        },
+        enabled = !isLoading)
   }
   val enabled = state.all { it.value.second is ValidationResult.Valid }
   if (!isLoading)
       Button(
-          onClick = { if (enabled) onSubmit(state.map { it.key.key to it.value.first }.toMap()) },
+          onClick = {
+            if (enabled) {
+              onSubmit(state.map { it.key.key to it.value.first }.toMap())
+              focusManager.clearFocus()
+            }
+          },
           enabled = enabled) {
             Text("Submit")
           }
