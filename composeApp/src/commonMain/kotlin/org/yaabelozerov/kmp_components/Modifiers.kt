@@ -1,9 +1,14 @@
 package org.yaabelozerov.kmp_components
 
 import androidx.compose.animation.core.EaseInOut
+import androidx.compose.animation.core.EaseInOutQuad
+import androidx.compose.animation.core.EaseOutCubic
+import androidx.compose.animation.core.EaseOutQuad
+import androidx.compose.animation.core.EaseOutQuart
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
@@ -11,7 +16,11 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawWithContent
@@ -22,9 +31,69 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlin.math.abs
+import kotlinx.coroutines.delay
+
+fun Modifier.scrollWithCap(
+    scrollState: LazyListState,
+    length: Dp,
+    onLeft: () -> Unit = {},
+    onRight: () -> Unit = {}
+) =
+    composed(
+        debugInspectorInfo {
+          name = "length"
+          value = length
+        }) {
+          val color = MaterialTheme.colorScheme.primary
+          var activeLeft by remember { mutableStateOf(false) }
+          LaunchedEffect(scrollState.isScrollInProgress, scrollState.canScrollBackward) {
+            if (scrollState.isScrollInProgress && !scrollState.canScrollBackward) {
+              delay(300)
+              activeLeft = true
+            } else {
+              if (activeLeft && !scrollState.isScrollInProgress) onLeft()
+              activeLeft = false
+            }
+          }
+          val progressLeft by
+              animateFloatAsState(
+                  if (activeLeft) 1f else 0f,
+                  animationSpec = tween(durationMillis = 300, easing = EaseOutQuart))
+
+          var activeRight by remember { mutableStateOf(false) }
+          LaunchedEffect(scrollState.isScrollInProgress, scrollState.canScrollForward) {
+            if (scrollState.isScrollInProgress && !scrollState.canScrollForward) {
+              delay(300)
+              activeRight = true
+            } else {
+              if (activeRight && !scrollState.isScrollInProgress) onRight()
+              activeRight = false
+            }
+          }
+          val progressRight by
+              animateFloatAsState(
+                  if (activeRight) -1f else 0f,
+                  animationSpec = tween(durationMillis = 300, easing = EaseOutQuart))
+
+          drawWithContent {
+            val lengthValue = length.toPx()
+            val progress = if (progressLeft > abs(progressRight)) progressLeft else progressRight
+            translate(progress * lengthValue, 0f) { this@drawWithContent.drawContent() }
+            drawCircle(
+                color.copy(alpha = progressLeft),
+                progressLeft * lengthValue / 4,
+                Offset(progressLeft * lengthValue / 2, size.height / 2))
+            drawCircle(
+                color.copy(alpha = -progressRight),
+                -progressRight * lengthValue / 4,
+                Offset(progressRight * lengthValue / 2 + size.width, size.height / 2))
+          }
+        }
 
 fun Modifier.horizontalFadingEdge(
     scrollState: ScrollState,

@@ -80,29 +80,41 @@ fun App() {
                                         Modifier.fillMaxWidth()
                                             .height(64.dp)
                                             .shimmerBackground(CardDefaults.shape))
-                                val listState = rememberLazyListState()
+                                val listState1 = rememberLazyListState()
                                 LazyRow(
-                                    state = listState,
+                                    state = listState1,
                                     flingBehavior =
-                                        rememberSnapFlingBehavior(listState, SnapPosition.Start),
+                                        rememberSnapFlingBehavior(listState1, SnapPosition.Start),
                                     horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                    modifier = Modifier.horizontalFadingEdge(listState, 32.dp)) {
+                                    modifier = Modifier.horizontalFadingEdge(listState1, 32.dp)) {
                                       items(10) {
                                         OutlinedCard(
                                             modifier = Modifier.height(64.dp).width(96.dp)) {}
                                       }
                                     }
-                                val scrollState = rememberScrollState()
+                                val scrollState1 = rememberScrollState()
                                 Row(
                                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                                     modifier =
-                                        Modifier
-                                            .horizontalFadingEdge(scrollState, 32.dp).horizontalScroll(scrollState)) {
+                                        Modifier.horizontalFadingEdge(scrollState1, 32.dp)
+                                            .horizontalScroll(scrollState1)) {
                                       for (i in 0..10) {
                                         OutlinedCard(
                                             modifier = Modifier.height(64.dp).width(96.dp)) {}
                                       }
                                     }
+                                val listState2 = rememberLazyListState()
+                                LazyRow(
+                                  state = listState2,
+                                  flingBehavior =
+                                  rememberSnapFlingBehavior(listState2, SnapPosition.Start),
+                                  horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                  modifier = Modifier.scrollWithCap(listState2, 64.dp, onLeft = { println("Left") }, onRight = { println("Right") })) {
+                                  items(10) {
+                                    OutlinedCard(
+                                      modifier = Modifier.height(64.dp).width(96.dp)) {}
+                                  }
+                                }
                                 PhoneField(
                                     onContinue = { phone ->
                                       println(phone)
