@@ -13,14 +13,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
@@ -69,86 +72,121 @@ fun App() {
                 navController = navCtrl,
                 startDestination = Nav.MAIN.route) {
                   composable(Nav.MAIN.route) {
-                    Column(
+                    LazyColumn(
                         Modifier.fillMaxSize().padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally) {
-                          Column(
-                              verticalArrangement = Arrangement.spacedBy(16.dp),
-                              modifier = Modifier.fillMaxWidth()) {
-                                Box(
-                                    modifier =
-                                        Modifier.fillMaxWidth()
-                                            .height(64.dp)
-                                            .shimmerBackground(CardDefaults.shape))
-                                val listState1 = rememberLazyListState()
-                                LazyRow(
-                                    state = listState1,
-                                    flingBehavior =
-                                        rememberSnapFlingBehavior(listState1, SnapPosition.Start),
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                    modifier = Modifier.horizontalFadingEdge(listState1, 32.dp)) {
-                                      items(10) {
-                                        OutlinedCard(
-                                            modifier = Modifier.height(64.dp).width(96.dp)) {}
+                          item {
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(16.dp),
+                                modifier = Modifier.fillMaxWidth()) {
+                                  Row(
+                                      modifier = Modifier.fillMaxWidth(),
+                                      horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                                        var isEnabled by remember { mutableStateOf(false) }
+                                        Card(
+                                            colors =
+                                                if (isEnabled)
+                                                    CardDefaults.cardColors()
+                                                        .copy(
+                                                            containerColor =
+                                                                MaterialTheme.colorScheme
+                                                                    .primaryContainer)
+                                                else CardDefaults.cardColors(),
+                                            modifier =
+                                                Modifier.height(128.dp)
+                                                    .weight(1f)
+                                                    .bouncyClickable(
+                                                        onClick = { isEnabled = !isEnabled })) {}
+                                        Card(
+                                            modifier =
+                                                Modifier.height(128.dp)
+                                                    .weight(1f)
+                                                    .bouncyClickable()) {}
                                       }
-                                    }
-                                val scrollState1 = rememberScrollState()
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                    modifier =
-                                        Modifier.horizontalFadingEdge(scrollState1, 32.dp)
-                                            .horizontalScroll(scrollState1)) {
-                                      for (i in 0..10) {
-                                        OutlinedCard(
-                                            modifier = Modifier.height(64.dp).width(96.dp)) {}
+                                  Box(
+                                      modifier =
+                                          Modifier.fillMaxWidth()
+                                              .height(64.dp)
+                                              .shimmerBackground(CardDefaults.shape))
+                                  val listState1 = rememberLazyListState()
+                                  LazyRow(
+                                      state = listState1,
+                                      flingBehavior =
+                                          rememberSnapFlingBehavior(listState1, SnapPosition.Start),
+                                      horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                      modifier = Modifier.horizontalFadingEdge(listState1, 32.dp)) {
+                                        items(10) {
+                                          OutlinedCard(
+                                              modifier = Modifier.height(64.dp).width(96.dp)) {}
+                                        }
                                       }
-                                    }
-                                val listState2 = rememberLazyListState()
-                                LazyRow(
-                                  state = listState2,
-                                  flingBehavior =
-                                  rememberSnapFlingBehavior(listState2, SnapPosition.Start),
-                                  horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                  modifier = Modifier.scrollWithCap(listState2, 64.dp, onLeft = { println("Left") }, onRight = { println("Right") })) {
-                                  items(10) {
-                                    OutlinedCard(
-                                      modifier = Modifier.height(64.dp).width(96.dp)) {}
+                                  val scrollState1 = rememberScrollState()
+                                  Row(
+                                      horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                      modifier =
+                                          Modifier.horizontalFadingEdge(scrollState1, 32.dp)
+                                              .horizontalScroll(scrollState1)) {
+                                        for (i in 0..10) {
+                                          OutlinedCard(
+                                              modifier = Modifier.height(64.dp).width(96.dp)) {}
+                                        }
+                                      }
+                                  val listState2 = rememberLazyListState()
+                                  LazyRow(
+                                      state = listState2,
+                                      flingBehavior =
+                                          rememberSnapFlingBehavior(listState2, SnapPosition.Start),
+                                      horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                      modifier =
+                                          Modifier.scrollWithCap(
+                                              listState2,
+                                              64.dp,
+                                              onLeft = { println("Left") },
+                                              onRight = { println("Right") })) {
+                                        items(10) {
+                                          OutlinedCard(
+                                              modifier = Modifier.height(64.dp).width(96.dp)) {}
+                                        }
+                                      }
+                                  PhoneField(
+                                      onContinue = { phone ->
+                                        println(phone)
+                                        true
+                                      })
+                                }
+                          }
+                          item {
+                            var isLoading by remember { mutableStateOf(false) }
+                            ValidatedForm(
+                                validators =
+                                    listOf(
+                                        Validator(key = ValidatorKey.Login) {
+                                          if (it.isBlank())
+                                              ValidationResult.Invalid("Can't be empty")
+                                          else if (it.length < 3)
+                                              ValidationResult.Invalid("Too short")
+                                          else if (it.length > 10)
+                                              ValidationResult.Invalid("Too long")
+                                          else ValidationResult.Valid
+                                        },
+                                        Validator(key = ValidatorKey.Password) {
+                                          if (it.isBlank())
+                                              ValidationResult.Invalid("Can't be empty")
+                                          else if (it.length < 3)
+                                              ValidationResult.Invalid("Too short")
+                                          else if (it.length > 10)
+                                              ValidationResult.Invalid("Too long")
+                                          else ValidationResult.Valid
+                                        }),
+                                onSubmit = {
+                                  coroutineScope.launch {
+                                    isLoading = true
+                                    delay(1000)
+                                    isLoading = false
                                   }
-                                }
-                                PhoneField(
-                                    onContinue = { phone ->
-                                      println(phone)
-                                      true
-                                    })
-                              }
-                          var isLoading by remember { mutableStateOf(false) }
-                          ValidatedForm(
-                              validators =
-                                  listOf(
-                                      Validator(key = ValidatorKey.Login) {
-                                        if (it.isBlank()) ValidationResult.Invalid("Can't be empty")
-                                        else if (it.length < 3)
-                                            ValidationResult.Invalid("Too short")
-                                        else if (it.length > 10)
-                                            ValidationResult.Invalid("Too long")
-                                        else ValidationResult.Valid
-                                      },
-                                      Validator(key = ValidatorKey.Password) {
-                                        if (it.isBlank()) ValidationResult.Invalid("Can't be empty")
-                                        else if (it.length < 3)
-                                            ValidationResult.Invalid("Too short")
-                                        else if (it.length > 10)
-                                            ValidationResult.Invalid("Too long")
-                                        else ValidationResult.Valid
-                                      }),
-                              onSubmit = {
-                                coroutineScope.launch {
-                                  isLoading = true
-                                  delay(1000)
-                                  isLoading = false
-                                }
-                              },
-                              isLoading = isLoading)
+                                },
+                                isLoading = isLoading)
+                          }
                         }
                   }
                 }

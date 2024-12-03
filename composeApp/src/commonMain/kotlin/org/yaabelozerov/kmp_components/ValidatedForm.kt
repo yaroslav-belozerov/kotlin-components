@@ -61,7 +61,7 @@ fun ValidatedField(
 }
 
 @Composable
-fun ColumnScope.ValidatedForm(
+fun ValidatedForm(
     validators: List<Validator<String>>,
     onSubmit: (Map<ValidatorKey, String>) -> Unit,
     isLoading: Boolean

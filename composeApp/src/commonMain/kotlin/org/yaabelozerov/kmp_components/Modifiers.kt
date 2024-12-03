@@ -1,9 +1,6 @@
 package org.yaabelozerov.kmp_components
 
 import androidx.compose.animation.core.EaseInOut
-import androidx.compose.animation.core.EaseInOutQuad
-import androidx.compose.animation.core.EaseOutCubic
-import androidx.compose.animation.core.EaseOutQuad
 import androidx.compose.animation.core.EaseOutQuart
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateDpAsState
@@ -14,6 +11,10 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
@@ -32,6 +33,8 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -223,4 +226,50 @@ fun Modifier.shimmerBackground(shape: Shape = RectangleShape): Modifier = compos
           tileMode = TileMode.Mirror,
       )
   return@composed this.then(background(brush, shape))
+}
+
+fun Modifier.bouncyClickable(onClick: () -> Unit = {}, shrinkSize: Float = 0.9f) = composed {
+  var buttonState by remember { mutableStateOf(false) }
+  val scale by animateFloatAsState(if (buttonState) shrinkSize else 1f)
+  graphicsLayer {
+        scaleX = scale
+        scaleY = scale
+      }
+      .clickable(
+          interactionSource = remember { MutableInteractionSource() },
+          indication = null,
+          onClick = { onClick() })
+      .pointerInput(buttonState) {
+        awaitPointerEventScope {
+          buttonState =
+              if (buttonState) {
+                waitForUpOrCancellation()
+                false
+              } else {
+                awaitFirstDown(false)
+                true
+              }
+        }
+      }
+}
+
+fun Modifier.bouncyClickable(shrinkSize: Float = 0.9f) = composed {
+  var buttonState by remember { mutableStateOf(false) }
+  val scale by animateFloatAsState(if (buttonState) shrinkSize else 1f)
+  graphicsLayer {
+        scaleX = scale
+        scaleY = scale
+      }
+      .pointerInput(buttonState) {
+        awaitPointerEventScope {
+          buttonState =
+              if (buttonState) {
+                waitForUpOrCancellation()
+                false
+              } else {
+                awaitFirstDown(false)
+                true
+              }
+        }
+      }
 }
