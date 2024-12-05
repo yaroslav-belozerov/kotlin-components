@@ -7,6 +7,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -78,8 +79,9 @@ fun App() {
                     startDestination = Nav.MAIN.route) {
                       composable(Nav.MAIN.route) {
                         LazyColumn(
-                            Modifier.fillMaxSize().padding(16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally) {
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            contentPadding = PaddingValues(16.dp)) {
                               item {
                                 Text(
                                     "Hello world!",
