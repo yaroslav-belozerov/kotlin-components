@@ -26,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -51,146 +52,161 @@ fun App() {
   val currentRoute = navCtrl.currentBackStackEntryAsState().value?.destination?.route
   val coroutineScope = rememberCoroutineScope()
 
-  AppTheme(isSystemInDarkTheme()) {
-    NavigationSuiteScaffold(
-        navigationSuiteItems = {
-          Nav.entries.forEach {
-            val selected = it.route == currentRoute
-            item(
-                selected = selected,
-                icon = {
-                  Icon(
-                      if (selected) it.selectedIcon else it.unselectedIcon,
-                      contentDescription = it.route)
-                },
-                onClick = { if (!selected) navCtrl.navigate(it.route) })
-          }
-        }) {
-          Scaffold { innerPadding ->
-            NavHost(
-                modifier = Modifier.padding(innerPadding),
-                navController = navCtrl,
-                startDestination = Nav.MAIN.route) {
-                  composable(Nav.MAIN.route) {
-                    LazyColumn(
-                        Modifier.fillMaxSize().padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally) {
-                          item {
-                            Column(
-                                verticalArrangement = Arrangement.spacedBy(16.dp),
-                                modifier = Modifier.fillMaxWidth()) {
-                                  Row(
-                                      modifier = Modifier.fillMaxWidth(),
-                                      horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                                        var isEnabled by remember { mutableStateOf(false) }
-                                        Card(
-                                            colors =
-                                                if (isEnabled)
-                                                    CardDefaults.cardColors()
-                                                        .copy(
-                                                            containerColor =
-                                                                MaterialTheme.colorScheme
-                                                                    .primaryContainer)
-                                                else CardDefaults.cardColors(),
-                                            modifier =
-                                                Modifier.height(128.dp)
-                                                    .weight(1f)
-                                                    .bouncyClickable(
-                                                        onClick = { isEnabled = !isEnabled })) {}
-                                        Card(
-                                            modifier =
-                                                Modifier.height(128.dp)
-                                                    .weight(1f)
-                                                    .bouncyClickable()) {}
+  AppThemeConfiguration(
+      darkTheme = isSystemInDarkTheme(),
+      lightColors = appLightScheme,
+      darkColors = appDarkScheme,
+      typography = makeTypography()) {
+        NavigationSuiteScaffold(
+            navigationSuiteItems = {
+              Nav.entries.forEach {
+                val selected = it.route == currentRoute
+                item(
+                    selected = selected,
+                    icon = {
+                      Icon(
+                          if (selected) it.selectedIcon else it.unselectedIcon,
+                          contentDescription = it.route)
+                    },
+                    onClick = { if (!selected) navCtrl.navigate(it.route) })
+              }
+            }) {
+              Scaffold { innerPadding ->
+                NavHost(
+                    modifier = Modifier.padding(innerPadding),
+                    navController = navCtrl,
+                    startDestination = Nav.MAIN.route) {
+                      composable(Nav.MAIN.route) {
+                        LazyColumn(
+                            Modifier.fillMaxSize().padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally) {
+                              item {
+                                Text(
+                                    "Hello world!",
+                                    style = MaterialTheme.typography.displayMedium,
+                                    modifier = Modifier.padding(bottom = 8.dp))
+                              }
+                              item {
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                                    modifier = Modifier.fillMaxWidth()) {
+                                      Row(
+                                          modifier = Modifier.fillMaxWidth(),
+                                          horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                                            var isEnabled by remember { mutableStateOf(false) }
+                                            Card(
+                                                colors =
+                                                    if (isEnabled)
+                                                        CardDefaults.cardColors()
+                                                            .copy(
+                                                                containerColor =
+                                                                    MaterialTheme.colorScheme
+                                                                        .primaryContainer)
+                                                    else CardDefaults.cardColors(),
+                                                modifier =
+                                                    Modifier.height(128.dp)
+                                                        .weight(1f)
+                                                        .bouncyClickable(
+                                                            onClick = {
+                                                              isEnabled = !isEnabled
+                                                            })) {}
+                                            Card(
+                                                modifier =
+                                                    Modifier.height(128.dp)
+                                                        .weight(1f)
+                                                        .bouncyClickable()) {}
+                                          }
+                                      Box(
+                                          modifier =
+                                              Modifier.fillMaxWidth()
+                                                  .height(64.dp)
+                                                  .shimmerBackground(CardDefaults.shape))
+                                      val listState1 = rememberLazyListState()
+                                      LazyRow(
+                                          state = listState1,
+                                          flingBehavior =
+                                              rememberSnapFlingBehavior(
+                                                  listState1, SnapPosition.Start),
+                                          horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                          modifier =
+                                              Modifier.horizontalFadingEdge(listState1, 32.dp)) {
+                                            items(10) {
+                                              OutlinedCard(
+                                                  modifier = Modifier.height(64.dp).width(96.dp)) {}
+                                            }
+                                          }
+                                      val scrollState1 = rememberScrollState()
+                                      Row(
+                                          horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                          modifier =
+                                              Modifier.horizontalFadingEdge(scrollState1, 32.dp)
+                                                  .horizontalScroll(scrollState1)) {
+                                            for (i in 0..10) {
+                                              OutlinedCard(
+                                                  modifier = Modifier.height(64.dp).width(96.dp)) {}
+                                            }
+                                          }
+                                      val listState2 = rememberLazyListState()
+                                      LazyRow(
+                                          state = listState2,
+                                          flingBehavior =
+                                              rememberSnapFlingBehavior(
+                                                  listState2, SnapPosition.Start),
+                                          horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                          modifier =
+                                              Modifier.scrollWithCap(
+                                                  listState2,
+                                                  64.dp,
+                                                  onLeft = { println("Left") },
+                                                  onRight = { println("Right") })) {
+                                            items(10) {
+                                              OutlinedCard(
+                                                  modifier = Modifier.height(64.dp).width(96.dp)) {}
+                                            }
+                                          }
+                                      PhoneField(
+                                          onContinue = { phone ->
+                                            println(phone)
+                                            true
+                                          })
+                                    }
+                              }
+                              item {
+                                var isLoading by remember { mutableStateOf(false) }
+                                ValidatedForm(
+                                    validators =
+                                        listOf(
+                                            Validator(key = ValidatorKey.Login) {
+                                              if (it.isBlank())
+                                                  ValidationResult.Invalid("Can't be empty")
+                                              else if (it.length < 3)
+                                                  ValidationResult.Invalid("Too short")
+                                              else if (it.length > 10)
+                                                  ValidationResult.Invalid("Too long")
+                                              else ValidationResult.Valid
+                                            },
+                                            Validator(key = ValidatorKey.Password) {
+                                              if (it.isBlank())
+                                                  ValidationResult.Invalid("Can't be empty")
+                                              else if (it.length < 3)
+                                                  ValidationResult.Invalid("Too short")
+                                              else if (it.length > 10)
+                                                  ValidationResult.Invalid("Too long")
+                                              else ValidationResult.Valid
+                                            }),
+                                    onSubmit = {
+                                      coroutineScope.launch {
+                                        isLoading = true
+                                        delay(1000)
+                                        isLoading = false
                                       }
-                                  Box(
-                                      modifier =
-                                          Modifier.fillMaxWidth()
-                                              .height(64.dp)
-                                              .shimmerBackground(CardDefaults.shape))
-                                  val listState1 = rememberLazyListState()
-                                  LazyRow(
-                                      state = listState1,
-                                      flingBehavior =
-                                          rememberSnapFlingBehavior(listState1, SnapPosition.Start),
-                                      horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                      modifier = Modifier.horizontalFadingEdge(listState1, 32.dp)) {
-                                        items(10) {
-                                          OutlinedCard(
-                                              modifier = Modifier.height(64.dp).width(96.dp)) {}
-                                        }
-                                      }
-                                  val scrollState1 = rememberScrollState()
-                                  Row(
-                                      horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                      modifier =
-                                          Modifier.horizontalFadingEdge(scrollState1, 32.dp)
-                                              .horizontalScroll(scrollState1)) {
-                                        for (i in 0..10) {
-                                          OutlinedCard(
-                                              modifier = Modifier.height(64.dp).width(96.dp)) {}
-                                        }
-                                      }
-                                  val listState2 = rememberLazyListState()
-                                  LazyRow(
-                                      state = listState2,
-                                      flingBehavior =
-                                          rememberSnapFlingBehavior(listState2, SnapPosition.Start),
-                                      horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                      modifier =
-                                          Modifier.scrollWithCap(
-                                              listState2,
-                                              64.dp,
-                                              onLeft = { println("Left") },
-                                              onRight = { println("Right") })) {
-                                        items(10) {
-                                          OutlinedCard(
-                                              modifier = Modifier.height(64.dp).width(96.dp)) {}
-                                        }
-                                      }
-                                  PhoneField(
-                                      onContinue = { phone ->
-                                        println(phone)
-                                        true
-                                      })
-                                }
-                          }
-                          item {
-                            var isLoading by remember { mutableStateOf(false) }
-                            ValidatedForm(
-                                validators =
-                                    listOf(
-                                        Validator(key = ValidatorKey.Login) {
-                                          if (it.isBlank())
-                                              ValidationResult.Invalid("Can't be empty")
-                                          else if (it.length < 3)
-                                              ValidationResult.Invalid("Too short")
-                                          else if (it.length > 10)
-                                              ValidationResult.Invalid("Too long")
-                                          else ValidationResult.Valid
-                                        },
-                                        Validator(key = ValidatorKey.Password) {
-                                          if (it.isBlank())
-                                              ValidationResult.Invalid("Can't be empty")
-                                          else if (it.length < 3)
-                                              ValidationResult.Invalid("Too short")
-                                          else if (it.length > 10)
-                                              ValidationResult.Invalid("Too long")
-                                          else ValidationResult.Valid
-                                        }),
-                                onSubmit = {
-                                  coroutineScope.launch {
-                                    isLoading = true
-                                    delay(1000)
-                                    isLoading = false
-                                  }
-                                },
-                                isLoading = isLoading)
-                          }
-                        }
-                  }
-                }
-          }
-        }
-  }
+                                    },
+                                    isLoading = isLoading)
+                              }
+                            }
+                      }
+                    }
+              }
+            }
+      }
 }
