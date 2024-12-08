@@ -68,7 +68,7 @@ private fun CustomButtonSkeleton(
 ) =
     Button(
         onClick = onClick,
-        modifier = modifier.bouncyClickable(0.95f),
+        modifier = modifier.bouncyClickable(),
         colors = colors,
         content = {
           var lastText by remember { mutableStateOf(text) }

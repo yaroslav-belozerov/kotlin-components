@@ -228,7 +228,7 @@ fun Modifier.shimmerBackground(shape: Shape = RectangleShape): Modifier = compos
   return@composed this.then(background(brush, shape))
 }
 
-fun Modifier.bouncyClickable(onClick: () -> Unit = {}, shrinkSize: Float = 0.9f) = composed {
+fun Modifier.bouncyClickable(onClick: () -> Unit = {}, shrinkSize: Float = 0.95f) = composed {
   var buttonState by remember { mutableStateOf(false) }
   val scale by animateFloatAsState(if (buttonState) shrinkSize else 1f)
   graphicsLayer {
@@ -253,7 +253,7 @@ fun Modifier.bouncyClickable(onClick: () -> Unit = {}, shrinkSize: Float = 0.9f)
       }
 }
 
-fun Modifier.bouncyClickable(shrinkSize: Float = 0.9f) = composed {
+fun Modifier.bouncyClickable(shrinkSize: Float = 0.95f) = composed {
   var buttonState by remember { mutableStateOf(false) }
   val scale by animateFloatAsState(if (buttonState) shrinkSize else 1f)
   graphicsLayer {
