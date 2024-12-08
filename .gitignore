@@ -1,6 +1,7 @@
 *.iml
 .kotlin
 .gradle
+kls_database.db
 **/build/
 xcuserdata
 !src/**/build/
