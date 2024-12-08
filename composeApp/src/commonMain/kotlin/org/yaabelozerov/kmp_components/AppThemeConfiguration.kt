@@ -9,7 +9,6 @@ expect fun AppThemeConfiguration(
   darkTheme: Boolean,
   lightColors: ColorScheme,
   darkColors: ColorScheme,
-  typography: Typography,
   content: @Composable () -> Unit
 )
 

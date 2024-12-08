@@ -54,8 +54,7 @@ fun App() {
   AppThemeConfiguration(
       darkTheme = isSystemInDarkTheme(),
       lightColors = appLightScheme,
-      darkColors = appDarkScheme,
-      typography = makeTypography()) {
+      darkColors = appDarkScheme) {
         NavigationSuiteScaffold(
             navigationSuiteItems = {
               Nav.entries.forEach {
