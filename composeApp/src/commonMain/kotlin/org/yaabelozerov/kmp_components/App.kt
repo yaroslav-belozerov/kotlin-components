@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material3.Card
@@ -82,6 +83,7 @@ fun App() {
                             contentPadding = PaddingValues(16.dp)) {
                               item { ShowcaseTitle() }
                               item { ShowcaseCards() }
+                              item { ShowcaseButtons() }
                               item { ShowcaseLoading() }
                               item { ShowcaseLazyFadeList() }
                               item { ShowcaseRowFadeList() }
@@ -125,6 +127,20 @@ private fun ShowcaseCards() =
                   .bouncyClickable(onClick = { isEnabled = !isEnabled })) {}
       Card(modifier = Modifier.height(128.dp).weight(1f).bouncyClickable()) {}
     }
+
+@Composable
+private fun ShowcaseButtons() {
+  LazyRow(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.Start)) {
+    item {
+      var wasClicked1 by remember { mutableStateOf(false) }
+      CustomButton(onClick = { wasClicked1 = !wasClicked1 }, text = if (wasClicked1) "Clicked!" else "Click Me!", icon = if (wasClicked1) Icons.Filled.Check else null)
+    }
+    item {
+      var wasClicked2 by remember { mutableStateOf(false) }
+      CustomOutlinedButton(onClick = { wasClicked2 = !wasClicked2 }, text = if (wasClicked2) "Clicked!" else "Click Me!", icon = if (wasClicked2) Icons.Filled.Check else null)
+    }
+  }
+}
 
 @Composable
 private fun ShowcaseLoading() =
