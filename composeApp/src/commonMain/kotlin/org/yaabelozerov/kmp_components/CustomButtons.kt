@@ -22,6 +22,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -73,9 +74,10 @@ private fun CustomButtonSkeleton(
         content = {
           var lastText by remember { mutableStateOf(text) }
           var lastIcon by remember { mutableStateOf(icon) }
-          var isAnimating by remember { mutableStateOf(true) }
-          val animationProgress by animateFloatAsState(if (isAnimating) 0f else 1f)
-          LaunchedEffect(text, icon) {
+          var isAnimating by remember { mutableStateOf(false) }
+          var isStartup by rememberSaveable { mutableStateOf(true) }
+          if (isStartup) LaunchedEffect(text, icon) {
+            isStartup = true
             isAnimating = true
             delay(100)
             lastText = text
