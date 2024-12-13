@@ -3,17 +3,23 @@ package org.yaabelozerov.kmp_components
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.EaseInCirc
+import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.EaseOutCubic
 import androidx.compose.animation.core.EaseOutQuart
+import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
@@ -24,10 +30,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.focus.onFocusChanged
@@ -110,7 +118,7 @@ fun TextLine(
         modifier = modifier.padding(vertical = 12.dp).height(48.dp).onFocusChanged {
             isFocused = it.isFocused
         },
-        textStyle = MaterialTheme.typography.headlineSmall.copy(color = MaterialTheme.colorScheme.onBackground),
+        textStyle = MaterialTheme.typography.headlineSmall.copy(color = MaterialTheme.colorScheme.onBackground.copy(0f)),
         value = value,
         onValueChange = { it: TextFieldValue -> onValueChange(it) },
         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
@@ -121,8 +129,19 @@ fun TextLine(
                 drawContent()
             }) {
                 innerTextField()
+                Row(Modifier.fillMaxSize()) {
+                    value.text.forEach {
+                        var visible by remember { mutableStateOf(false) }
+                        LaunchedEffect(null) {
+                            visible = true
+                        }
+                        AnimatedVisibility(visible, enter = slideInVertically(animationSpec = tween(50, easing = EaseInOut)) { -it } + fadeIn(animationSpec = tween(100, 25, EaseInOut)) + expandVertically(expandFrom = Alignment.CenterVertically)) {
+                            Text(it.toString(), style = MaterialTheme.typography.headlineSmall)
+                        }
+                    }
+                }
                 if (value.text.isEmpty()) {
-                    Text("Placeholder", color = MaterialTheme.colorScheme.onBackground.copy(0.3f), style = MaterialTheme.typography.headlineSmall.copy(MaterialTheme.colorScheme.onBackground))
+                    Text("Placeholder", style = MaterialTheme.typography.headlineSmall.copy(MaterialTheme.colorScheme.onBackground.copy(0.3f)))
                 }
             }
         }
