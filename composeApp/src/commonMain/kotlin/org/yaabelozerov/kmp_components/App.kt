@@ -6,6 +6,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,11 +29,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -82,6 +85,7 @@ fun App() {
                             verticalArrangement = Arrangement.spacedBy(16.dp),
                             contentPadding = PaddingValues(16.dp)) {
                               item { ShowcaseTitle() }
+                              item { ShowcaseTextLines() }
                               item { ShowcaseCards() }
                               item { ShowcaseButtons() }
                               item { ShowcaseLoading() }
@@ -110,6 +114,16 @@ private fun ShowcaseTitle() =
         "Hello world!",
         style = MaterialTheme.typography.displayMedium,
         modifier = Modifier.padding(bottom = 8.dp))
+
+@Composable
+private fun ShowcaseTextLines() {
+  Column(Modifier.fillMaxWidth()) {
+    for (i in 0..3) {
+      var txt by remember { mutableStateOf(TextFieldValue()) }
+      TextLine(txt, { txt = it }, modifier = Modifier.fillMaxWidth())
+    }
+  }
+}
 
 @Composable
 private fun ShowcaseCards() =
