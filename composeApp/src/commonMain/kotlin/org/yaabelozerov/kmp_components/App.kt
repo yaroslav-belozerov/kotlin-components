@@ -21,6 +21,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -29,7 +31,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -56,9 +57,7 @@ fun App() {
   val currentRoute = navCtrl.currentBackStackEntryAsState().value?.destination?.route
 
   AppThemeConfiguration(
-      darkTheme = isSystemInDarkTheme(),
-      lightColors = appLightScheme,
-      darkColors = appDarkScheme) {
+      darkTheme = isSystemInDarkTheme(), lightColors = appLightScheme, darkColors = appDarkScheme) {
         NavigationSuiteScaffold(
             navigationSuiteItems = {
               Nav.entries.forEach {
@@ -85,7 +84,7 @@ fun App() {
                             verticalArrangement = Arrangement.spacedBy(16.dp),
                             contentPadding = PaddingValues(16.dp)) {
                               item { ShowcaseTitle() }
-                              item { ShowcaseTextLines() }
+                              item { ShowcaseTextLine() }
                               item { ShowcaseCards() }
                               item { ShowcaseButtons() }
                               item { ShowcaseLoading() }
@@ -116,13 +115,44 @@ private fun ShowcaseTitle() =
         modifier = Modifier.padding(bottom = 8.dp))
 
 @Composable
-private fun ShowcaseTextLines() {
-  Column(Modifier.fillMaxWidth()) {
-    for (i in 0..3) {
-      var txt by remember { mutableStateOf(TextFieldValue()) }
-      TextLine(txt, { txt = it }, modifier = Modifier.fillMaxWidth())
-    }
-  }
+private fun ShowcaseTextLine() {
+  Column(
+      verticalArrangement = Arrangement.spacedBy(16.dp),
+      modifier = Modifier.padding(bottom = 16.dp)) {
+        var txt1 by remember { mutableStateOf(TextFieldValue()) }
+        TextLine(txt1, { txt1 = it }, modifier = Modifier.fillMaxWidth())
+        var txt2 by remember { mutableStateOf(TextFieldValue()) }
+        TextLine(
+            txt2,
+            { txt2 = it },
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = { Icon(Icons.Default.Person, null) },
+            placeholderString = "Username")
+        var txt3 by remember { mutableStateOf(TextFieldValue()) }
+        val mask = "000 000 00 00"
+        TextLine(
+            txt3,
+            { if (it.text.length <= mask.filter { it != ' ' }.length && it.text.all { it.isDigit() }) {
+              txt3 = it
+            } },
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = { Text("+7") },
+            placeholderString = "000 000 00 00",
+            visualTransformation = PhoneVisualTransformation(mask, maskNumber = '0'))
+        var txt4 by remember { mutableStateOf(TextFieldValue()) }
+        TextLine(
+            txt4,
+            { txt4 = it },
+            modifier = Modifier.fillMaxWidth(),
+            isError = txt4.text.any { it.isDigit() },
+            placeholderString = "No digits!")
+        TextLine(
+          TextFieldValue("Wrong Answer: 10"),
+          {  },
+          modifier = Modifier.fillMaxWidth(),
+          isError = true,
+          enabled = false)
+      }
 }
 
 @Composable
@@ -144,16 +174,25 @@ private fun ShowcaseCards() =
 
 @Composable
 private fun ShowcaseButtons() {
-  LazyRow(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.Start)) {
-    item {
-      var wasClicked1 by remember { mutableStateOf(false) }
-      CustomButton(onClick = { wasClicked1 = !wasClicked1 }, text = if (wasClicked1) "Clicked!" else "Click Me!", icon = if (wasClicked1) Icons.Filled.Check else null)
-    }
-    item {
-      var wasClicked2 by remember { mutableStateOf(false) }
-      CustomOutlinedButton(onClick = { wasClicked2 = !wasClicked2 }, text = if (wasClicked2) "Clicked!" else "Click Me!", icon = if (wasClicked2) Icons.Filled.Check else null)
-    }
-  }
+  LazyRow(
+      modifier = Modifier.fillMaxWidth(),
+      verticalAlignment = Alignment.CenterVertically,
+      horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.Start)) {
+        item {
+          var wasClicked1 by remember { mutableStateOf(false) }
+          CustomButton(
+              onClick = { wasClicked1 = !wasClicked1 },
+              text = if (wasClicked1) "Clicked!" else "Click Me!",
+              icon = if (wasClicked1) Icons.Filled.Check else null)
+        }
+        item {
+          var wasClicked2 by remember { mutableStateOf(false) }
+          CustomOutlinedButton(
+              onClick = { wasClicked2 = !wasClicked2 },
+              text = if (wasClicked2) "Clicked!" else "Click Me!",
+              icon = if (wasClicked2) Icons.Filled.Check else null)
+        }
+      }
 }
 
 @Composable
