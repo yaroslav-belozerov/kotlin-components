@@ -21,7 +21,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material3.Card
@@ -179,18 +178,25 @@ private fun ShowcaseButtons() {
       verticalAlignment = Alignment.CenterVertically,
       horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.Start)) {
         item {
-          var wasClicked1 by remember { mutableStateOf(false) }
+          var wasClicked by remember { mutableStateOf(false) }
           CustomButton(
-              onClick = { wasClicked1 = !wasClicked1 },
-              text = if (wasClicked1) "Clicked!" else "Click Me!",
-              icon = if (wasClicked1) Icons.Filled.Check else null)
+              onClick = { wasClicked = !wasClicked },
+              text = if (wasClicked) "Clicked!" else "Click Me!",
+              icon = if (wasClicked) Icons.Filled.Check else null)
         }
         item {
-          var wasClicked2 by remember { mutableStateOf(false) }
+          var wasClicked by remember { mutableStateOf(false) }
           CustomOutlinedButton(
-              onClick = { wasClicked2 = !wasClicked2 },
-              text = if (wasClicked2) "Clicked!" else "Click Me!",
-              icon = if (wasClicked2) Icons.Filled.Check else null)
+              onClick = { wasClicked = !wasClicked },
+              text = if (wasClicked) "Clicked!" else "Click Me!",
+              icon = if (wasClicked) Icons.Filled.Check else null)
+        }
+        item {
+          var wasClicked by remember { mutableStateOf(false) }
+          CustomTextButton(
+            onClick = { wasClicked = !wasClicked },
+            text = if (wasClicked) "Clicked!" else "Click Me!",
+            icon = if (wasClicked) Icons.Filled.Check else null)
         }
       }
 }
