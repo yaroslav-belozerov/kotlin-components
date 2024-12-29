@@ -1,5 +1,6 @@
 package org.yaabelozerov.kmp_components
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.expandIn
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -23,6 +24,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
@@ -34,6 +37,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -49,6 +53,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -119,7 +124,54 @@ fun App() {
                             }
                           }
                     }
-                    composable(Nav.FONTS.route) {}
+                    composable(Nav.FONTS.route) {
+                      val types =
+                          mapOf(
+                              MaterialTheme.typography.displayLarge to "Display Large",
+                              MaterialTheme.typography.displayMedium to "Display Medium",
+                              MaterialTheme.typography.displaySmall to "Display Small",
+                              MaterialTheme.typography.headlineLarge to "Headline Large",
+                              MaterialTheme.typography.headlineMedium to "Headline Medium",
+                              MaterialTheme.typography.headlineSmall to "Headline Small",
+                              MaterialTheme.typography.titleLarge to "Title Large",
+                              MaterialTheme.typography.titleMedium to "Title Medium",
+                              MaterialTheme.typography.titleSmall to "Title Small",
+                              MaterialTheme.typography.bodyLarge to "Body Large",
+                              MaterialTheme.typography.bodyMedium to "Body Medium",
+                              MaterialTheme.typography.bodySmall to "Body Small",
+                              MaterialTheme.typography.labelLarge to "Label Large",
+                              MaterialTheme.typography.labelMedium to "Label Medium",
+                              MaterialTheme.typography.labelSmall to "Label Small",
+                          )
+                      var tooltipIndex by remember { mutableStateOf(-1) }
+                      LazyColumn(
+                          verticalArrangement = Arrangement.spacedBy(8.dp),
+                          modifier = Modifier.fillMaxSize(),
+                          contentPadding = PaddingValues(16.dp)) {
+                            itemsIndexed(types.keys.toImmutableList()) { index, it ->
+                              ElevatedCard(
+                                  onClick = {
+                                    tooltipIndex = if (index != tooltipIndex) {
+                                      index
+                                    } else {
+                                      -1
+                                    }
+                                  }, modifier = Modifier.animateContentSize()) {
+                                    Text(
+                                        if (tooltipIndex == index)
+                                            it.fontFamily!!
+                                                .toString()
+                                                .splitToSequence("/")
+                                                .last()
+                                                .splitToSequence(",")
+                                                .first()
+                                        else types[it].toString(),
+                                        style = it,
+                                        modifier = Modifier.padding(16.dp))
+                                  }
+                            }
+                          }
+                    }
                   }
             }
       }
