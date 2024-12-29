@@ -1,5 +1,9 @@
 package org.yaabelozerov.kmp_components
 
+import androidx.compose.animation.expandIn
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.horizontalScroll
@@ -9,16 +13,21 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
@@ -28,7 +37,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.*
@@ -46,7 +54,8 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 enum class Nav(val route: String, val selectedIcon: ImageVector, val unselectedIcon: ImageVector) {
-  MAIN("main", Icons.Filled.Home, Icons.Outlined.Home)
+  MAIN("main", Icons.Filled.Home, Icons.Outlined.Home),
+  FONTS("fonts", Icons.AutoMirrored.Filled.List, Icons.AutoMirrored.Outlined.List)
 }
 
 @Composable
@@ -68,40 +77,50 @@ fun App() {
                           if (selected) it.selectedIcon else it.unselectedIcon,
                           contentDescription = it.route)
                     },
-                    onClick = { if (!selected) navCtrl.navigate(it.route) })
+                    onClick = {
+                      if (!selected)
+                          navCtrl.navigate(it.route) {
+                            launchSingleTop = true
+                            restoreState = true
+                            popUpTo(navCtrl.graph.startDestinationRoute ?: return@navigate) {
+                              saveState = true
+                            }
+                          }
+                    })
               }
             }) {
-              Scaffold { innerPadding ->
-                NavHost(
-                    modifier = Modifier.padding(innerPadding),
-                    navController = navCtrl,
-                    startDestination = Nav.MAIN.route) {
-                      composable(Nav.MAIN.route) {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(16.dp),
-                            contentPadding = PaddingValues(16.dp)) {
-                              item { ShowcaseTitle() }
-                              item { ShowcaseTextLine() }
-                              item { ShowcaseCards() }
-                              item { ShowcaseButtons() }
-                              item { ShowcaseLoading() }
-                              item { ShowcaseLazyFadeList() }
-                              item { ShowcaseRowFadeList() }
-                              item { ShowcaseSpringRow() }
-                              item {
-                                PhoneField(
-                                    onContinue = { phone ->
-                                      println(phone)
-                                      true
-                                    })
-                                ShowcaseForm()
-                              }
+              NavHost(
+                  modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars).fillMaxSize(),
+                  navController = navCtrl,
+                  enterTransition = { fadeIn() + expandIn() },
+                  exitTransition = { fadeOut() + shrinkOut() },
+                  startDestination = Nav.MAIN.route) {
+                    composable(Nav.MAIN.route) {
+                      LazyColumn(
+                          modifier = Modifier.fillMaxSize(),
+                          horizontalAlignment = Alignment.CenterHorizontally,
+                          verticalArrangement = Arrangement.spacedBy(16.dp),
+                          contentPadding = PaddingValues(16.dp)) {
+                            item { ShowcaseTitle() }
+                            item { ShowcaseTextLine() }
+                            item { ShowcaseCards() }
+                            item { ShowcaseButtons() }
+                            item { ShowcaseLoading() }
+                            item { ShowcaseLazyFadeList() }
+                            item { ShowcaseRowFadeList() }
+                            item { ShowcaseSpringRow() }
+                            item {
+                              PhoneField(
+                                  onContinue = { phone ->
+                                    println(phone)
+                                    true
+                                  })
+                              ShowcaseForm()
                             }
-                      }
+                          }
                     }
-              }
+                    composable(Nav.FONTS.route) {}
+                  }
             }
       }
 }
@@ -131,9 +150,12 @@ private fun ShowcaseTextLine() {
         val mask = "000 000 00 00"
         TextLine(
             txt3,
-            { if (it.text.length <= mask.filter { it != ' ' }.length && it.text.all { it.isDigit() }) {
-              txt3 = it
-            } },
+            {
+              if (it.text.length <= mask.filter { it != ' ' }.length &&
+                  it.text.all { it.isDigit() }) {
+                txt3 = it
+              }
+            },
             modifier = Modifier.fillMaxWidth(),
             leadingIcon = { Text("+7") },
             placeholderString = "000 000 00 00",
@@ -146,11 +168,11 @@ private fun ShowcaseTextLine() {
             isError = txt4.text.any { it.isDigit() },
             placeholderString = "No digits!")
         TextLine(
-          TextFieldValue("Wrong Answer: 10"),
-          {  },
-          modifier = Modifier.fillMaxWidth(),
-          isError = true,
-          enabled = false)
+            TextFieldValue("Wrong Answer: 10"),
+            {},
+            modifier = Modifier.fillMaxWidth(),
+            isError = true,
+            enabled = false)
       }
 }
 
@@ -194,9 +216,9 @@ private fun ShowcaseButtons() {
         item {
           var wasClicked by remember { mutableStateOf(false) }
           CustomTextButton(
-            onClick = { wasClicked = !wasClicked },
-            text = if (wasClicked) "Clicked!" else "Click Me!",
-            icon = if (wasClicked) Icons.Filled.Check else null)
+              onClick = { wasClicked = !wasClicked },
+              text = if (wasClicked) "Clicked!" else "Click Me!",
+              icon = if (wasClicked) Icons.Filled.Check else null)
         }
       }
 }
