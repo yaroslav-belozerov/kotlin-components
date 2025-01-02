@@ -1,6 +1,5 @@
 package org.yaabelozerov.kmp_components
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -12,5 +11,9 @@ actual fun AppThemeConfiguration(
   darkColors: ColorScheme,
   content: @Composable () -> Unit
 ) {
-  MaterialTheme(colorScheme = if (darkTheme) darkColors else lightColors, typography = makeTypography(), content = content)
+  MaterialTheme(
+    colorScheme = if (darkTheme) darkColors else lightColors,
+    typography = makeTypography(),
+    content = content
+  )
 }

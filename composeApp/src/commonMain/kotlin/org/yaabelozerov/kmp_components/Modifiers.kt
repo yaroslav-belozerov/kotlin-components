@@ -42,189 +42,164 @@ import kotlin.math.abs
 import kotlinx.coroutines.delay
 
 fun Modifier.scrollWithCap(
-    scrollState: LazyListState,
-    length: Dp,
-    onLeft: () -> Unit = {},
-    onRight: () -> Unit = {}
-) =
-    composed(
-        debugInspectorInfo {
-          name = "length"
-          value = length
-        }) {
-          val color = MaterialTheme.colorScheme.primary
-          var activeLeft by remember { mutableStateOf(false) }
-          LaunchedEffect(scrollState.isScrollInProgress, scrollState.canScrollBackward) {
-            if (scrollState.isScrollInProgress && !scrollState.canScrollBackward) {
-              delay(300)
-              activeLeft = true
-            } else {
-              if (activeLeft && !scrollState.isScrollInProgress) onLeft()
-              activeLeft = false
-            }
-          }
-          val progressLeft by
-              animateFloatAsState(
-                  if (activeLeft) 1f else 0f,
-                  animationSpec = tween(durationMillis = 300, easing = EaseOutQuart))
+  scrollState: LazyListState, length: Dp, onLeft: () -> Unit = {}, onRight: () -> Unit = {}
+) = composed(debugInspectorInfo {
+  name = "length"
+  value = length
+}) {
+  val color = MaterialTheme.colorScheme.primary
+  var activeLeft by remember { mutableStateOf(false) }
+  LaunchedEffect(scrollState.isScrollInProgress, scrollState.canScrollBackward) {
+    if (scrollState.isScrollInProgress && !scrollState.canScrollBackward) {
+      delay(300)
+      activeLeft = true
+    } else {
+      if (activeLeft && !scrollState.isScrollInProgress) onLeft()
+      activeLeft = false
+    }
+  }
+  val progressLeft by animateFloatAsState(
+    if (activeLeft) 1f else 0f, animationSpec = tween(durationMillis = 300, easing = EaseOutQuart)
+  )
 
-          var activeRight by remember { mutableStateOf(false) }
-          LaunchedEffect(scrollState.isScrollInProgress, scrollState.canScrollForward) {
-            if (scrollState.isScrollInProgress && !scrollState.canScrollForward) {
-              delay(300)
-              activeRight = true
-            } else {
-              if (activeRight && !scrollState.isScrollInProgress) onRight()
-              activeRight = false
-            }
-          }
-          val progressRight by
-              animateFloatAsState(
-                  if (activeRight) -1f else 0f,
-                  animationSpec = tween(durationMillis = 300, easing = EaseOutQuart))
+  var activeRight by remember { mutableStateOf(false) }
+  LaunchedEffect(scrollState.isScrollInProgress, scrollState.canScrollForward) {
+    if (scrollState.isScrollInProgress && !scrollState.canScrollForward) {
+      delay(300)
+      activeRight = true
+    } else {
+      if (activeRight && !scrollState.isScrollInProgress) onRight()
+      activeRight = false
+    }
+  }
+  val progressRight by animateFloatAsState(
+    if (activeRight) -1f else 0f, animationSpec = tween(durationMillis = 300, easing = EaseOutQuart)
+  )
 
-          drawWithContent {
-            val lengthValue = length.toPx()
-            val progress = if (progressLeft > abs(progressRight)) progressLeft else progressRight
-            translate(progress * lengthValue, 0f) { this@drawWithContent.drawContent() }
-            drawCircle(
-                color.copy(alpha = progressLeft),
-                progressLeft * lengthValue / 4,
-                Offset(progressLeft * lengthValue / 2, size.height / 2))
-            drawCircle(
-                color.copy(alpha = -progressRight),
-                -progressRight * lengthValue / 4,
-                Offset(progressRight * lengthValue / 2 + size.width, size.height / 2))
-          }
-        }
+  drawWithContent {
+    val lengthValue = length.toPx()
+    val progress = if (progressLeft > abs(progressRight)) progressLeft else progressRight
+    translate(progress * lengthValue, 0f) { this@drawWithContent.drawContent() }
+    drawCircle(
+      color.copy(alpha = progressLeft),
+      progressLeft * lengthValue / 4,
+      Offset(progressLeft * lengthValue / 2, size.height / 2)
+    )
+    drawCircle(
+      color.copy(alpha = -progressRight),
+      -progressRight * lengthValue / 4,
+      Offset(progressRight * lengthValue / 2 + size.width, size.height / 2)
+    )
+  }
+}
 
 fun Modifier.horizontalFadingEdge(
-    scrollState: ScrollState,
-    length: Dp,
-    edgeColor: Color? = null,
-) =
-    composed(
-        debugInspectorInfo {
-          name = "length"
-          value = length
-        }) {
-          val color = edgeColor ?: MaterialTheme.colorScheme.surface
-          drawWithContent {
-            val lengthValue = length.toPx()
-            val scrollFromStart = scrollState.value
-            val scrollFromEnd = scrollState.maxValue - scrollState.value
-            val startFadingEdgeStrength =
-                lengthValue * (scrollFromStart / lengthValue).coerceAtMost(1f)
-            val endFadingEdgeStrength = lengthValue * (scrollFromEnd / lengthValue).coerceAtMost(1f)
-            drawContent()
-            drawRect(
-                brush =
-                    Brush.horizontalGradient(
-                        colors =
-                            listOf(
-                                color,
-                                Color.Transparent,
-                            ),
-                        startX = 0f,
-                        endX = startFadingEdgeStrength,
-                    ),
-                size =
-                    Size(
-                        startFadingEdgeStrength,
-                        this.size.height,
-                    ),
-            )
-            drawRect(
-                brush =
-                    Brush.horizontalGradient(
-                        colors =
-                            listOf(
-                                Color.Transparent,
-                                color,
-                            ),
-                        startX = size.width - endFadingEdgeStrength,
-                        endX = size.width,
-                    ),
-                topLeft = Offset(x = size.width - endFadingEdgeStrength, y = 0f),
-            )
-          }
-        }
+  scrollState: ScrollState,
+  length: Dp,
+  edgeColor: Color? = null,
+) = composed(debugInspectorInfo {
+  name = "length"
+  value = length
+}) {
+  val color = edgeColor ?: MaterialTheme.colorScheme.surface
+  drawWithContent {
+    val lengthValue = length.toPx()
+    val scrollFromStart = scrollState.value
+    val scrollFromEnd = scrollState.maxValue - scrollState.value
+    val startFadingEdgeStrength = lengthValue * (scrollFromStart / lengthValue).coerceAtMost(1f)
+    val endFadingEdgeStrength = lengthValue * (scrollFromEnd / lengthValue).coerceAtMost(1f)
+    drawContent()
+    drawRect(
+      brush = Brush.horizontalGradient(
+        colors = listOf(
+          color,
+          Color.Transparent,
+        ),
+        startX = 0f,
+        endX = startFadingEdgeStrength,
+      ),
+      size = Size(
+        startFadingEdgeStrength,
+        this.size.height,
+      ),
+    )
+    drawRect(
+      brush = Brush.horizontalGradient(
+        colors = listOf(
+          Color.Transparent,
+          color,
+        ),
+        startX = size.width - endFadingEdgeStrength,
+        endX = size.width,
+      ),
+      topLeft = Offset(x = size.width - endFadingEdgeStrength, y = 0f),
+    )
+  }
+}
 
 fun Modifier.horizontalFadingEdge(
-    lazyListState: LazyListState,
-    length: Dp,
-    edgeColor: Color? = null,
-) =
-    composed(
-        debugInspectorInfo {
-          name = "length"
-          value = length
-        }) {
-          val color = edgeColor ?: MaterialTheme.colorScheme.surface
-          val startFadingEdge by
-              animateDpAsState(if (lazyListState.canScrollBackward) length else 0.dp)
-          val endFadingEdge by
-              animateDpAsState(if (lazyListState.canScrollForward) length else 0.dp)
+  lazyListState: LazyListState,
+  length: Dp,
+  edgeColor: Color? = null,
+) = composed(debugInspectorInfo {
+  name = "length"
+  value = length
+}) {
+  val color = edgeColor ?: MaterialTheme.colorScheme.surface
+  val startFadingEdge by animateDpAsState(if (lazyListState.canScrollBackward) length else 0.dp)
+  val endFadingEdge by animateDpAsState(if (lazyListState.canScrollForward) length else 0.dp)
 
-          drawWithContent {
-            drawContent()
-            drawRect(
-                brush =
-                    Brush.horizontalGradient(
-                        colors =
-                            listOf(
-                                color,
-                                Color.Transparent,
-                            ),
-                        startX = 0f,
-                        endX = startFadingEdge.toPx(),
-                    ),
-                size =
-                    Size(
-                        startFadingEdge.toPx(),
-                        this.size.height,
-                    ),
-            )
-            drawRect(
-                brush =
-                    Brush.horizontalGradient(
-                        colors =
-                            listOf(
-                                Color.Transparent,
-                                color,
-                            ),
-                        startX = size.width - endFadingEdge.toPx(),
-                        endX = size.width,
-                    ),
-                topLeft = Offset(x = size.width - endFadingEdge.toPx(), y = 0f),
-            )
-          }
-        }
+  drawWithContent {
+    drawContent()
+    drawRect(
+      brush = Brush.horizontalGradient(
+        colors = listOf(
+          color,
+          Color.Transparent,
+        ),
+        startX = 0f,
+        endX = startFadingEdge.toPx(),
+      ),
+      size = Size(
+        startFadingEdge.toPx(),
+        this.size.height,
+      ),
+    )
+    drawRect(
+      brush = Brush.horizontalGradient(
+        colors = listOf(
+          Color.Transparent,
+          color,
+        ),
+        startX = size.width - endFadingEdge.toPx(),
+        endX = size.width,
+      ),
+      topLeft = Offset(x = size.width - endFadingEdge.toPx(), y = 0f),
+    )
+  }
+}
 
 fun Modifier.shimmerBackground(shape: Shape = RectangleShape): Modifier = composed {
   val transition = rememberInfiniteTransition()
 
-  val translateAnimation by
-      transition.animateFloat(
-          initialValue = 0f,
-          targetValue = 400f,
-          animationSpec =
-              infiniteRepeatable(
-                  tween(durationMillis = 2000, easing = EaseInOut), RepeatMode.Restart),
-          label = "",
-      )
-  val shimmerColors =
-      listOf(
-          MaterialTheme.colorScheme.surfaceBright.copy(alpha = 0.7f),
-          MaterialTheme.colorScheme.surfaceBright.copy(alpha = 0.0f),
-      )
-  val brush =
-      Brush.linearGradient(
-          colors = shimmerColors,
-          start = Offset(translateAnimation, translateAnimation),
-          end = Offset(translateAnimation + 200f, translateAnimation + 200f),
-          tileMode = TileMode.Mirror,
-      )
+  val translateAnimation by transition.animateFloat(
+    initialValue = 0f,
+    targetValue = 400f,
+    animationSpec = infiniteRepeatable(
+      tween(durationMillis = 2000, easing = EaseInOut), RepeatMode.Restart
+    ),
+    label = "",
+  )
+  val shimmerColors = listOf(
+    MaterialTheme.colorScheme.surfaceBright.copy(alpha = 0.7f),
+    MaterialTheme.colorScheme.surfaceBright.copy(alpha = 0.0f),
+  )
+  val brush = Brush.linearGradient(
+    colors = shimmerColors,
+    start = Offset(translateAnimation, translateAnimation),
+    end = Offset(translateAnimation + 200f, translateAnimation + 200f),
+    tileMode = TileMode.Mirror,
+  )
   return@composed this.then(background(brush, shape))
 }
 
@@ -232,44 +207,38 @@ fun Modifier.bouncyClickable(onClick: () -> Unit = {}, shrinkSize: Float = 0.95f
   var buttonState by remember { mutableStateOf(false) }
   val scale by animateFloatAsState(if (buttonState) shrinkSize else 1f)
   graphicsLayer {
-        scaleX = scale
-        scaleY = scale
-      }
-      .clickable(
-          interactionSource = remember { MutableInteractionSource() },
-          indication = null,
-          onClick = { onClick() })
-      .pointerInput(buttonState) {
-        awaitPointerEventScope {
-          buttonState =
-              if (buttonState) {
-                waitForUpOrCancellation()
-                false
-              } else {
-                awaitFirstDown(false)
-                true
-              }
+    scaleX = scale
+    scaleY = scale
+  }.clickable(interactionSource = remember { MutableInteractionSource() },
+      indication = null,
+      onClick = { onClick() }).pointerInput(buttonState) {
+      awaitPointerEventScope {
+        buttonState = if (buttonState) {
+          waitForUpOrCancellation()
+          false
+        } else {
+          awaitFirstDown(false)
+          true
         }
       }
+    }
 }
 
 fun Modifier.bouncyClickable(shrinkSize: Float = 0.95f) = composed {
   var buttonState by remember { mutableStateOf(false) }
   val scale by animateFloatAsState(if (buttonState) shrinkSize else 1f)
   graphicsLayer {
-        scaleX = scale
-        scaleY = scale
-      }
-      .pointerInput(buttonState) {
-        awaitPointerEventScope {
-          buttonState =
-              if (buttonState) {
-                waitForUpOrCancellation()
-                false
-              } else {
-                awaitFirstDown(false)
-                true
-              }
+    scaleX = scale
+    scaleY = scale
+  }.pointerInput(buttonState) {
+      awaitPointerEventScope {
+        buttonState = if (buttonState) {
+          waitForUpOrCancellation()
+          false
+        } else {
+          awaitFirstDown(false)
+          true
         }
       }
+    }
 }

@@ -62,67 +62,61 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun CustomTextField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    enabled: Boolean = true,
-    isError: Boolean = false,
-    errorText: String = "",
-    leadingIcon: (@Composable () -> Unit)? = null,
-    trailingIcon: (@Composable () -> Unit)? = null,
-    placeholder: (@Composable () -> Unit)? = null,
-    visualTransformation: VisualTransformation = VisualTransformation.None,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    keyboardActions: KeyboardActions = KeyboardActions.Default,
-    modifier: Modifier = Modifier
-) =
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        enabled = enabled,
-        keyboardOptions = keyboardOptions,
-        keyboardActions = keyboardActions,
-        visualTransformation = visualTransformation,
-        modifier = modifier,
-        placeholder = placeholder,
-        leadingIcon = leadingIcon,
-        trailingIcon = trailingIcon,
-        supportingText = {
-          val density = LocalDensity.current
-          AnimatedVisibility(
-              visible = isError,
-              enter =
-                  slideInVertically { with(density) { -10.dp.roundToPx() } } +
-                      fadeIn() +
-                      expandVertically(),
-              exit =
-                  slideOutVertically { with(density) { -10.dp.roundToPx() } } +
-                      fadeOut() +
-                      shrinkVertically(),
-              content = {
-                Text(
-                    modifier = Modifier.padding(top = 8.dp, bottom = 16.dp),
-                    text = errorText,
-                    fontSize = 16.sp)
-              })
-        },
-        textStyle = LocalTextStyle.current.copy(fontSize = 24.sp),
-        singleLine = true,
-        isError = isError,
-        shape = MaterialTheme.shapes.medium)
+  value: String,
+  onValueChange: (String) -> Unit,
+  enabled: Boolean = true,
+  isError: Boolean = false,
+  errorText: String = "",
+  leadingIcon: (@Composable () -> Unit)? = null,
+  trailingIcon: (@Composable () -> Unit)? = null,
+  placeholder: (@Composable () -> Unit)? = null,
+  visualTransformation: VisualTransformation = VisualTransformation.None,
+  keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+  keyboardActions: KeyboardActions = KeyboardActions.Default,
+  modifier: Modifier = Modifier
+) = OutlinedTextField(
+  value = value,
+  onValueChange = onValueChange,
+  enabled = enabled,
+  keyboardOptions = keyboardOptions,
+  keyboardActions = keyboardActions,
+  visualTransformation = visualTransformation,
+  modifier = modifier,
+  placeholder = placeholder,
+  leadingIcon = leadingIcon,
+  trailingIcon = trailingIcon,
+  supportingText = {
+    val density = LocalDensity.current
+    AnimatedVisibility(visible = isError,
+      enter = slideInVertically { with(density) { -10.dp.roundToPx() } } + fadeIn() + expandVertically(),
+      exit = slideOutVertically { with(density) { -10.dp.roundToPx() } } + fadeOut() + shrinkVertically(),
+      content = {
+        Text(
+          modifier = Modifier.padding(top = 8.dp, bottom = 16.dp),
+          text = errorText,
+          fontSize = 16.sp
+        )
+      })
+  },
+  textStyle = LocalTextStyle.current.copy(fontSize = 24.sp),
+  singleLine = true,
+  isError = isError,
+  shape = MaterialTheme.shapes.medium
+)
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun TextLine(
-    value: TextFieldValue,
-    onValueChange: (TextFieldValue) -> Unit,
-    enabled: Boolean = true,
-    isError: Boolean = false,
-    leadingIcon: (@Composable () -> Unit)? = null,
-    placeholderString: String = "",
-    visualTransformation: VisualTransformation = VisualTransformation.None,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    keyboardActions: KeyboardActions = KeyboardActions.Default,
-    modifier: Modifier = Modifier
+  value: TextFieldValue,
+  onValueChange: (TextFieldValue) -> Unit,
+  enabled: Boolean = true,
+  isError: Boolean = false,
+  leadingIcon: (@Composable () -> Unit)? = null,
+  placeholderString: String = "",
+  visualTransformation: VisualTransformation = VisualTransformation.None,
+  keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+  keyboardActions: KeyboardActions = KeyboardActions.Default,
+  modifier: Modifier = Modifier
 ) {
   var isFocused by remember { mutableStateOf(false) }
   val scrollState = rememberScrollState()
@@ -130,99 +124,96 @@ fun TextLine(
   val surfaceBright = MaterialTheme.colorScheme.surfaceBright
   val primary = MaterialTheme.colorScheme.primary
   val error = MaterialTheme.colorScheme.error
-  val animProgress by
-      animateFloatAsState(
-          if (isFocused) 1f else 0f, animationSpec = tween(200, easing = EaseOutCubic))
+  val animProgress by animateFloatAsState(
+    if (isFocused) 1f else 0f, animationSpec = tween(200, easing = EaseOutCubic)
+  )
   val animColor = primary.copy(animProgress).compositeOver(surfaceBright)
   var textLength by remember { mutableIntStateOf(0) }
   var animateThis by remember { mutableStateOf(false) }
-  BasicTextField(
-      enabled = enabled,
-      visualTransformation = visualTransformation,
-      keyboardOptions = keyboardOptions,
-      keyboardActions = keyboardActions,
-      modifier = modifier.onFocusChanged { isFocused = it.isFocused },
-      textStyle = MaterialTheme.typography.headlineSmall.copy(color = Color.Transparent),
-      value = value,
-      onValueChange = { it: TextFieldValue ->
-        animateThis = it.selection.start == it.text.length
-        onValueChange(it)
-        coroutineScope.launch { scrollState.scrollTo(textLength) }
-      },
-      cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-      singleLine = true,
-      decorationBox = { innerTextField ->
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier =
-                Modifier.drawWithContent {
-                      drawRect(
-                          Brush.linearGradient(
-                              0f to surfaceBright, 0.85f to surfaceBright, 1f to Color.Transparent),
-                          topLeft = Offset(0f, size.height + 4.dp.toPx()),
-                          size = Size(size.width, 2.dp.toPx()))
-                      drawRect(
-                          Brush.linearGradient(
-                              0f to animColor, animProgress to animColor, 1f to Color.Transparent),
-                          topLeft = Offset(0f, size.height + 4.dp.toPx()),
-                          size = Size(size.width, 3.dp.toPx()))
-                      if (!enabled) {
-                        drawRect(
-                            color = surfaceBright.copy(0.5f),
-                            topLeft = Offset(0f, size.height + 4.dp.toPx()),
-                            size = Size(size.width, 3.dp.toPx()))
-                      }
-                      if (isError) {
-                        drawRect(
-                            color = if (enabled) error else error.copy(0.5f),
-                            topLeft = Offset(0f, size.height + 4.dp.toPx()),
-                            size = Size(size.width, 3.dp.toPx()))
-                      }
-                      drawContent()
-                    }
-                    .height(48.dp)
-                    .padding(top = 8.dp)) {
-              CompositionLocalProvider(
-                  LocalTextStyle provides MaterialTheme.typography.headlineSmall) {
-                    leadingIcon?.invoke()
-                    Spacer(Modifier.width(8.dp))
-                    Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.BottomStart) {
-                      innerTextField()
-                      Row(Modifier.fillMaxWidth().horizontalScroll(scrollState)) {
-                        (visualTransformation.filter(AnnotatedString(value.text)).text).forEach { it
-                          ->
-                          var visible by remember { mutableStateOf(!animateThis) }
-                          LaunchedEffect(null) { visible = true }
-                          AnimatedVisibility(
-                              visible,
-                              enter =
-                                  fadeIn(animationSpec = tween(100, easing = EaseInOut)) +
-                                      slideInVertically(
-                                          initialOffsetY = { it },
-                                          animationSpec = tween(200, easing = EaseOut)),
-                          ) {
-                            Text(
-                                it.toString(),
-                                color =
-                                    (if (isError) MaterialTheme.colorScheme.error
-                                        else MaterialTheme.colorScheme.onBackground)
-                                        .copy(if (enabled) 1f else 0.5f))
-                          }
-                        }
-                      }
-                      if (value.text.isEmpty()) {
-                        Text(
-                            placeholderString,
-                            color = MaterialTheme.colorScheme.onBackground.copy(0.3f))
-                      }
-                    }
-                  }
-              if (isFocused && value.text.isNotEmpty()) {
-                IconButton(onClick = { onValueChange(TextFieldValue("")) }) {
-                  Icon(Icons.Default.Clear, null)
+  BasicTextField(enabled = enabled,
+    visualTransformation = visualTransformation,
+    keyboardOptions = keyboardOptions,
+    keyboardActions = keyboardActions,
+    modifier = modifier.onFocusChanged { isFocused = it.isFocused },
+    textStyle = MaterialTheme.typography.headlineSmall.copy(color = Color.Transparent),
+    value = value,
+    onValueChange = { it: TextFieldValue ->
+      animateThis = it.selection.start == it.text.length
+      onValueChange(it)
+      coroutineScope.launch { scrollState.scrollTo(textLength) }
+    },
+    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+    singleLine = true,
+    decorationBox = { innerTextField ->
+      Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.drawWithContent {
+        drawRect(
+          Brush.linearGradient(
+            0f to surfaceBright, 0.85f to surfaceBright, 1f to Color.Transparent
+          ), topLeft = Offset(0f, size.height + 4.dp.toPx()), size = Size(size.width, 2.dp.toPx())
+        )
+        drawRect(
+          Brush.linearGradient(
+            0f to animColor, animProgress to animColor, 1f to Color.Transparent
+          ), topLeft = Offset(0f, size.height + 4.dp.toPx()), size = Size(size.width, 3.dp.toPx())
+        )
+        if (!enabled) {
+          drawRect(
+            color = surfaceBright.copy(0.5f),
+            topLeft = Offset(0f, size.height + 4.dp.toPx()),
+            size = Size(size.width, 3.dp.toPx())
+          )
+        }
+        if (isError) {
+          drawRect(
+            color = if (enabled) error else error.copy(0.5f),
+            topLeft = Offset(0f, size.height + 4.dp.toPx()),
+            size = Size(size.width, 3.dp.toPx())
+          )
+        }
+        drawContent()
+      }.height(48.dp).padding(top = 8.dp)) {
+        CompositionLocalProvider(
+          LocalTextStyle provides MaterialTheme.typography.headlineSmall
+        ) {
+          leadingIcon?.invoke()
+          Spacer(Modifier.width(8.dp))
+          Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.BottomStart) {
+            innerTextField()
+            Row(Modifier.fillMaxWidth().horizontalScroll(scrollState)) {
+              (visualTransformation.filter(AnnotatedString(value.text)).text).forEach { it ->
+                var visible by remember { mutableStateOf(!animateThis) }
+                LaunchedEffect(null) { visible = true }
+                AnimatedVisibility(
+                  visible,
+                  enter = fadeIn(
+                    animationSpec = tween(
+                      100,
+                      easing = EaseInOut
+                    )
+                  ) + slideInVertically(
+                    initialOffsetY = { it }, animationSpec = tween(200, easing = EaseOut)
+                  ),
+                ) {
+                  Text(
+                    it.toString(), color = (if (isError) MaterialTheme.colorScheme.error
+                    else MaterialTheme.colorScheme.onBackground).copy(if (enabled) 1f else 0.5f)
+                  )
                 }
               }
             }
-      },
-      onTextLayout = { res -> textLength = res.size.width })
+            if (value.text.isEmpty()) {
+              Text(
+                placeholderString, color = MaterialTheme.colorScheme.onBackground.copy(0.3f)
+              )
+            }
+          }
+        }
+        if (isFocused && value.text.isNotEmpty()) {
+          IconButton(onClick = { onValueChange(TextFieldValue("")) }) {
+            Icon(Icons.Default.Clear, null)
+          }
+        }
+      }
+    },
+    onTextLayout = { res -> textLength = res.size.width })
 }

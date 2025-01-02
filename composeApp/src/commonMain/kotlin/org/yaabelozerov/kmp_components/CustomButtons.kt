@@ -6,10 +6,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -31,19 +29,19 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun CustomButton(
-    onClick: () -> Unit,
-    text: String,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    icon: ImageVector? = null
-) =
-    CustomButtonSkeleton(
-        onClick = onClick,
-        colors = ButtonDefaults.buttonColors(),
-        text = text,
-        modifier = modifier,
-        enabled = enabled,
-        icon = icon)
+  onClick: () -> Unit,
+  text: String,
+  modifier: Modifier = Modifier,
+  enabled: Boolean = true,
+  icon: ImageVector? = null
+) = CustomButtonSkeleton(
+  onClick = onClick,
+  colors = ButtonDefaults.buttonColors(),
+  text = text,
+  modifier = modifier,
+  enabled = enabled,
+  icon = icon
+)
 
 @Composable
 fun CustomOutlinedButton(
@@ -52,76 +50,74 @@ fun CustomOutlinedButton(
   modifier: Modifier = Modifier,
   enabled: Boolean = true,
   icon: ImageVector? = null
-) =
-  CustomButtonSkeleton(
-    onClick = onClick,
-    colors = ButtonDefaults.outlinedButtonColors(),
-    text = text,
-    modifier = modifier,
-    enabled = enabled,
-    icon = icon, borderStroke = ButtonDefaults.outlinedButtonBorder(enabled))
+) = CustomButtonSkeleton(
+  onClick = onClick,
+  colors = ButtonDefaults.outlinedButtonColors(),
+  text = text,
+  modifier = modifier,
+  enabled = enabled,
+  icon = icon,
+  borderStroke = ButtonDefaults.outlinedButtonBorder(enabled)
+)
 
 @Composable
 fun CustomTextButton(
-    onClick: () -> Unit,
-    text: String,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    icon: ImageVector? = null
-) =
-    CustomButtonSkeleton(
-        onClick = onClick,
-        colors = ButtonDefaults.outlinedButtonColors(),
-        text = text,
-        modifier = modifier,
-        enabled = enabled,
-        icon = icon)
+  onClick: () -> Unit,
+  text: String,
+  modifier: Modifier = Modifier,
+  enabled: Boolean = true,
+  icon: ImageVector? = null
+) = CustomButtonSkeleton(
+  onClick = onClick,
+  colors = ButtonDefaults.outlinedButtonColors(),
+  text = text,
+  modifier = modifier,
+  enabled = enabled,
+  icon = icon
+)
 
 @Composable
 private fun CustomButtonSkeleton(
-    onClick: () -> Unit,
-    colors: ButtonColors,
-    text: String,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    icon: ImageVector? = null,
-    borderStroke: BorderStroke? = null
-) =
-    OutlinedButton(
-        onClick = onClick,
-        modifier =
-            modifier
-                .bouncyClickable(),
-        colors = colors,
-        border = borderStroke,
-        enabled = enabled,
-        content = {
-          var lastText by remember { mutableStateOf(text) }
-          var lastIcon by remember { mutableStateOf(icon) }
-          var isAnimating by remember { mutableStateOf(false) }
-          var isStartup by rememberSaveable { mutableStateOf(true) }
-          if (isStartup)
-              LaunchedEffect(text, icon) {
-                isStartup = true
-                isAnimating = true
-                delay(100)
-                lastText = text
-                lastIcon = icon
-                isAnimating = false
-              }
-          AnimatedVisibility(
-              !isAnimating,
-              enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
-              exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                  lastIcon?.let {
-                    Icon(
-                        imageVector = it,
-                        contentDescription = null,
-                        modifier = Modifier.padding(end = 4.dp))
-                  }
-                  Text(lastText)
-                }
-              }
-        },
-        shape = MaterialTheme.shapes.medium)
+  onClick: () -> Unit,
+  colors: ButtonColors,
+  text: String,
+  modifier: Modifier = Modifier,
+  enabled: Boolean = true,
+  icon: ImageVector? = null,
+  borderStroke: BorderStroke? = null
+) = OutlinedButton(
+  onClick = onClick,
+  modifier = modifier.bouncyClickable(),
+  colors = colors,
+  border = borderStroke,
+  enabled = enabled,
+  content = {
+    var lastText by remember { mutableStateOf(text) }
+    var lastIcon by remember { mutableStateOf(icon) }
+    var isAnimating by remember { mutableStateOf(false) }
+    var isStartup by rememberSaveable { mutableStateOf(true) }
+    if (isStartup) LaunchedEffect(text, icon) {
+      isStartup = true
+      isAnimating = true
+      delay(100)
+      lastText = text
+      lastIcon = icon
+      isAnimating = false
+    }
+    AnimatedVisibility(
+      !isAnimating,
+      enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
+      exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
+    ) {
+      Row(verticalAlignment = Alignment.CenterVertically) {
+        lastIcon?.let {
+          Icon(
+            imageVector = it, contentDescription = null, modifier = Modifier.padding(end = 4.dp)
+          )
+        }
+        Text(lastText)
+      }
+    }
+  },
+  shape = MaterialTheme.shapes.medium
+)

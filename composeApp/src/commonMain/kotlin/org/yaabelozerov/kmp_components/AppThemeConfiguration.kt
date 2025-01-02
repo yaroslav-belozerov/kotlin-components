@@ -1,7 +1,6 @@
 package org.yaabelozerov.kmp_components
 
 import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 
 @Composable
